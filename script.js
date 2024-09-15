@@ -1,76 +1,73 @@
-// Inicializa Mermaid para renderizar el gráfico
-mermaid.initialize({startOnLoad:true});
+const nodes = [
+  { id: "Análisis Matemático I", x: 100, y: 50 },
+  { id: "Lógica y Metodología de las Ciencias", x: 100, y: 100 },
+  { id: "Fundamentos de Informática", x: 100, y: 150 },
+  { id: "Matemática Discreta", x: 100, y: 200 },
+  { id: "Álgebra", x: 100, y: 250 },
+  // Agrega el resto de las materias con sus posiciones
+];
 
-const diagram = `
-graph TD
-    %% Primer año
-    A(Análisis Matemático I) --> B(Estadística I)
-    A --> C(Teoría de las Decisiones)
-    A --> D(Física I)
-    A --> E(Análisis Matemático II)
-    F(Lógica y Metodología de las Ciencias) --> G(Programación I)
-    H(Fundamentos de Informática)
-    I(Matemática Discreta) --> J(Algoritmos y Estructuras de Datos)
-    I --> K(Técnicas Digitales)
-    L(Álgebra) --> K
-    L --> E
-    D --> M(Física II)
-    G --> N(Lenguajes Formales y Teoría de la Computación)
-    G --> O(Programación II)
-    G --> J
-    P(Elementos de Administración) --> Q(Teoría de las Organizaciones)
+const links = [
+  { source: "Análisis Matemático I", target: "Programación I" },
+  { source: "Matemática Discreta", target: "Programación II" },
+  // Agrega las relaciones entre materias
+];
 
-    %% Segundo año
-    O --> R(Arquitectura de Computadoras)
-    O --> S(Programación III)
-    O --> T(Redes I)
-    O --> U(Base de Datos I)
-    M --> R
-    B --> V(Estadística II)
-    B --> W(Sistemas de Información)
-    X(Química) --> Y(Gestión Ambiental)
-    E --> C
-    E --> Z(Análisis Matemático III)
-    E --> AA(Economía)
-    V --> C
-    V --> AB(Simulación de Sistemas)
-    J --> S
-    J --> U
-    K --> R
-    K --> T
+// Configura el diagrama SVG
+const svg = d3.select("#diagram");
 
-    %% Tercer año
-    Z --> AC(Análisis Numérico)
-    Z --> T
-    N --> AD(Sistemas Operativos)
-    R --> AD
-    S --> AE(Inteligencia Artificial)
-    S --> AF(Metodologías de Diseño de Sistemas)
-    T --> AG(Redes II)
-    AD --> AH(Sega Informática) AC --> AB
+// Crea líneas para las conexiones
+const link = svg.selectAll(".link")
+  .data(links)
+  .enter()
+  .append("line")
+  .attr("class", "link")
+  .attr("x1", d => nodes.find(n => n.id === d.source).x)
+  .attr("y1", d => nodes.find(n => n.id === d.source).y)
+  .attr("x2", d => nodes.find(n => n.id === d.target).x)
+  .attr("y2", d => nodes.find(n => n.id === d.target).y);
 
-    %% Cuarto año
-    AA --> 
-    W --> 
-    U --> AI(Base de Datos II)
-    AG --> AH
-    AE --> 
-    AF --> AJ(Ingeniería de Software)
-    AF --> AK(Ingeniería Legal)
-    AI --> AJ
-    AH
+// Crea nodos para las materias
+const node = svg.selectAll(".node")
+  .data(nodes)
+  .enter()
+  .append("g")
+  .attr("class", "node")
+  .attr("transform", d => `translate(${d.x}, ${d.y})`)
+  .on("click", (event, d) => highlightConnections(d.id));
 
-    %% Quinto año
-    AL(Práctica Profesional Supervisada)
-    AJ
-    AB
-    C --> AM(Administración de RRHH)
-    AN(Optativa I)
-    AM
-    AK
-    AO(Trabajo de Grado en Ing. en Inf.)
-    Y
-    AP(Optativa II)`;
+// Dibuja círculos para las materias
+node.append("circle")
+  .attr("r", 20);
 
-// Renderizar el diagrama en el contenedor de la página
- document.getElementById('diagram').innerHTML = mermaid.render('graphDiv', diagram);
+// Añade texto con el nombre de las materias
+node.append("text")
+  .attr("dx", -30)
+  .attr("dy", 4)
+  .text(d => d.id);
+
+// Función para resaltar conexiones
+function highlightConnections(selectedNode) {
+  svg.selectAll("circle").classed("dimmed", true);
+  svg.selectAll("text").classed("dimmed", true);
+  svg.selectAll(".link").classed("dimmed", true);
+
+  svg.selectAll("circle").filter(d => d.id === selectedNode)
+      .classed("dimmed", false)
+      .classed("highlighted", true);
+
+  svg.selectAll(".link").filter(d => d.source === selectedNode || d.target === selectedNode)
+      .classed("dimmed", false);
+
+  svg.selectAll("circle").filter(d => {
+      return links.some(l => l.source === selectedNode && l.target === d.id) ||
+             links.some(l => l.target === selectedNode && l.source === d.id);
+  }).classed("dimmed", false);
+}
+
+// Función para restaurar el diagrama
+svg.on("click", () => {
+  svg.selectAll("circle").classed("dimmed", false).classed("highlighted", false);
+  svg.selectAll("text").classed("dimmed", false);
+  svg.selectAll(".link").classed("dimmed", false);
+});

@@ -1,21 +1,33 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  margin: 0;
-  padding: 0;
-}
-
-h1 {
-  text-align: center;
-  margin-top: 20px;
 }
 
 #diagram {
-  width: 100%;
-  max-width: 1200px;
-  margin: 50px auto;
-  padding: 10px;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ccc;
+  margin: 20px;
+}
+
+.node circle {
+  fill: #69b3a2;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.node text {
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.link {
+  fill: none;
+  stroke: #999;
+  stroke-width: 2px;
+}
+
+.highlighted {
+  fill: #f00;
+}
+
+.dimmed {
+  opacity: 0.1;
 }
